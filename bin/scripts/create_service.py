@@ -10,7 +10,7 @@ from fixtures.docker_service import (dockerfile, requirements, service,
 from constants import BASE_DIR, YELLOW, GREEN, RED, RESET
 
 
-class MicroServieScript:
+class MicroServiceScript:
 
     """Class representation for Micro Service Script."""
 
@@ -72,30 +72,31 @@ class MicroServieScript:
             print("{}Creation of the directory {} failed.{}"
                 .format(RED, self.service_name, RESET))
         else:  
-            self.create_file_into_directory("__init__.py", self.service_src_folder)
+            self.create_file_into_directory(["__init__.py"], self.service_src_folder)
             self.add_code_into_file(service_init, self.service_src_folder, "__init__.py")
-            self.create_file_into_directory("private", self.docker_folder)
-            self.create_file_into_directory("public", self.docker_folder)
-            self.create_file_into_directory("Dockerfile", self.development_folder)
+            self.create_file_into_directory(["private", "public"], self.docker_folder)
+            self.create_file_into_directory(["Dockerfile", "requirements.txt"],
+                self.development_folder)
             self.add_code_into_file(dockerfile, self.development_folder, "Dockerfile")
-            self.create_file_into_directory("requirements.txt", self.development_folder)
             self.add_code_into_file(requirements, self.development_folder, "requirements.txt")
             print("{}Successfully created service {} directory.{}"
                 .format(GREEN, self.service_name, RESET))
 
     @staticmethod
-    def create_file_into_directory(file, real_path):
-        """Create file into created service directory.
+    def create_file_into_directory(files, real_path):
+        """Create files into created service directory. It will only works if
+        the files are in the same folder.
         
         Arguments
         ---------
-            file : str
-                name of the file to be created.
+            file : list
+                names of the files to be created.
             real_path : str
                 route for the file to be created.
         """
-        f = open("{}/{}".format(real_path, file), "w+")
-        f.close()
+        for file in files:
+            f = open("{}/{}".format(real_path, file), "w+")
+            f.close()
 
     def add_code_into_file(self, fixture, url_path, file=None):
         """Add fixture code into corresponding file.
@@ -114,9 +115,8 @@ class MicroServieScript:
             route = "{}/{}"
         with open(route.format(url_path, file), "a") as f:
             f.write(fixture.format(self.service_name, self.service_port))
-            print(fixture)
         f.close()
 
 
 if __name__ == "__main__":
-    MicroServieScript(sys.argv[1], sys.argv[2])
+    MicroServiceScript(sys.argv[1], sys.argv[2])
