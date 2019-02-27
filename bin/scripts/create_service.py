@@ -5,8 +5,12 @@ the service into the docker-compose.
 """
 import os, sys
 
-from fixtures.docker_service import (dockerfile, requirements, service, 
-    service_init)
+from fixtures.alembic_ini import alembic_ini as alembic_fixture
+from fixtures.dockerfile import dockerfile as dockerfile_fixture
+from fixtures.docker_service import service as service_fixture
+from fixtures.requirements import requirements as requirements_fixture
+from fixtures.service_init import service_init as init_fixture
+
 from constants import BASE_DIR, CYAN, GREEN, RED, RESET, YELLOW
 
 
@@ -34,11 +38,11 @@ class MicroServiceScript:
             service_port : str
                 port of the service to be created.
         """
-        self.service = service.format(service_name, service_port)
-        self.docker_file_url = "{}/docker-compose.yml".format(BASE_DIR)
-        self.docker_folder = "{}/{}/docker/development/env".format(BASE_DIR, service_name)
-        self.development_folder = "{}/{}/docker/development".format(BASE_DIR, service_name)
-        self.service_src_folder = "{}/{}/src".format(BASE_DIR, service_name)
+        #self.service = service.format(service_name, service_port)
+        self.docker_file_url = "{0}/docker-compose.yml".format(BASE_DIR)
+        self.docker_folder = "{0}/{1}/docker/development/env".format(BASE_DIR, service_name)
+        self.development_folder = "{0}/{1}/docker/development".format(BASE_DIR, service_name)
+        self.service_src_folder = "{0}/{1}/src/{1}".format(BASE_DIR, service_name)
 
     def read_docker_file(self):
         """Read docker file function and validate if either service name and 
@@ -59,7 +63,7 @@ class MicroServiceScript:
         """Add service into docker-compose."""
         print(("{}Creating service {} with port {}{}")
             .format(YELLOW, self.service_name, self.service_port, RESET))
-        self.add_code_into_file(service, self.docker_file_url)
+        self.add_code_into_file(service_fixture, self.docker_file_url)
         print("{}Microservice {} successfully added to docker-compose.yml{}"
             .format(GREEN, self.service_name, RESET))
 
@@ -80,9 +84,10 @@ class MicroServiceScript:
                 ("requirements.txt", self.development_folder)
             ]
             self.create_files_into_folders(files_folders)
-            self.add_code_into_file(service_init, self.service_src_folder, "__init__.py")
-            self.add_code_into_file(dockerfile, self.development_folder, "Dockerfile")
-            self.add_code_into_file(requirements, self.development_folder, "requirements.txt")
+            self.add_code_into_file(init_fixture, self.service_src_folder, "__init__.py")
+            self.add_code_into_file(alembic_fixture, self.service_src_folder, "alembic.ini")
+            self.add_code_into_file(dockerfile_fixture, self.development_folder, "Dockerfile")
+            self.add_code_into_file(requirements_fixture, self.development_folder, "requirements.txt")
             print("{}Successfully created service {} directory.{}"
                 .format(GREEN, self.service_name, RESET))
 
