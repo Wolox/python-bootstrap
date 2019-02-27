@@ -7,7 +7,7 @@ import os, sys
 
 from fixtures.docker_service import (dockerfile, requirements, service, 
     service_init)
-from constants import BASE_DIR, YELLOW, GREEN, RED, RESET
+from constants import BASE_DIR, CYAN, GREEN, RED, RESET, YELLOW
 
 
 class MicroServiceScript:
@@ -122,3 +122,7 @@ class MicroServiceScript:
 
 if __name__ == "__main__":
     MicroServiceScript(sys.argv[1], sys.argv[2])
+    print("{}Stoping and removing all docker containers.{}".format(CYAN, RESET))
+    os.system("docker-compose down && docker-compose stop")
+    print("{}Starting and building all docker containers.{}".format(CYAN, RESET))
+    os.system("docker-compose up")
