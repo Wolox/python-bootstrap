@@ -72,30 +72,32 @@ class MicroServiceScript:
             print("{}Creation of the directory {} failed.{}"
                 .format(RED, self.service_name, RESET))
         else:  
-            self.create_file_into_directory(["__init__.py"], self.service_src_folder)
+            files_folders = [
+                ("__init__.py", self.service_src_folder),
+                ("private", self.docker_folder),
+                ("public", self.docker_folder),
+                ("Dockerfile", self.development_folder),
+                ("requirements.txt", self.development_folder)
+            ]
+            self.create_files_into_folders(files_folders)
             self.add_code_into_file(service_init, self.service_src_folder, "__init__.py")
-            self.create_file_into_directory(["private", "public"], self.docker_folder)
-            self.create_file_into_directory(["Dockerfile", "requirements.txt"],
-                self.development_folder)
             self.add_code_into_file(dockerfile, self.development_folder, "Dockerfile")
             self.add_code_into_file(requirements, self.development_folder, "requirements.txt")
             print("{}Successfully created service {} directory.{}"
                 .format(GREEN, self.service_name, RESET))
 
     @staticmethod
-    def create_file_into_directory(files, real_path):
-        """Create files into created service directory. It will only works if
-        the files are in the same folder.
+    def create_files_into_folders(files_folders):
+        """Create files into created service folder.
         
         Arguments
         ---------
-            file : list
-                names of the files to be created.
-            real_path : str
-                route for the file to be created.
+            files_folders : list
+                tuple with the file's and folder's name.
         """
-        for file in files:
-            f = open("{}/{}".format(real_path, file), "w+")
+        for ff in files_folders:
+            file_name, folder_name = ff
+            f = open("{}/{}".format(folder_name, file_name), "w+")
             f.close()
 
     def add_code_into_file(self, fixture, url_path, file=None):
