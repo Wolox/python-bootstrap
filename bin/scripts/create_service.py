@@ -8,7 +8,9 @@ import os, sys
 from fixtures.alembic_ini import alembic_ini as alembic_fixture
 from fixtures.dockerfile import dockerfile as dockerfile_fixture
 from fixtures.docker_service import service as service_fixture
+from fixtures.migrations_env import env as env_fixture
 from fixtures.requirements import requirements as requirements_fixture
+from fixtures.script_mako import mako as script_mako_fixture
 from fixtures.service_init import service_init as init_fixture
 
 from constants import BASE_DIR, CYAN, GREEN, RED, RESET, YELLOW
@@ -84,8 +86,7 @@ class MicroServiceScript:
                 ("requirements.txt", self.development_folder)
             ]
             self.create_files_into_folders(files_folders)
-            self.add_code_into_file(init_fixture, self.service_src_folder, "__init__.py")
-            self.add_code_into_file(alembic_fixture, self.service_src_folder, "alembic.ini")
+            self.create_src_folders_and_files()
             self.add_code_into_file(dockerfile_fixture, self.development_folder, "Dockerfile")
             self.add_code_into_file(requirements_fixture, self.development_folder, "requirements.txt")
             print("{}Successfully created service {} directory.{}"
@@ -104,6 +105,24 @@ class MicroServiceScript:
             file_name, folder_name = ff
             f = open("{}/{}".format(folder_name, file_name), "w+")
             f.close()
+
+    def create_src_folders_and_files(self):
+        """."""
+        migrations_folder = "{}/migrations".format(self.service_src_folder)
+        blueprint_folder = "{}/blueprints/{}".format(self.service_src_folder, self.service_name)
+        try:
+            os.makedirs("{}/versions".format(migrations_folder))
+            os.makedirs("{}/services".format(self.service_src_folder))
+            os.makedirs(blueprint_folder)
+        except OSError:
+            print("{}Creation src's directory {} failed.{}"
+                .format(RED, self.service_name, RESET))
+        else:  
+            self.add_code_into_file(init_fixture, self.service_src_folder, "__init__.py")
+            self.add_code_into_file(alembic_fixture, self.service_src_folder, "alembic.ini")
+            self.add_code_into_file(env_fixture, migrations_folder, "env.py")
+            #TODO: Revisar como hacer funcionar las fixtures con el script.py.mako
+            #self.add_code_into_file(script_mako_fixture, migrations_folder, "script.py.mako")
 
     def add_code_into_file(self, fixture, url_path, file=None):
         """Add fixture code into corresponding file.
